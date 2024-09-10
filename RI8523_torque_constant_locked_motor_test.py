@@ -101,7 +101,7 @@ def main():
                              trans_type = 254, event_timer = 10, enabled = True)
 
         motor_tested = 2 # 1: testing MN1005, RI8523 motor in pos control, 2: testing RI8523 motor, MN1005 in position control
-        i_range = [-10000, 10000] # mA
+        i_range = [-3000, 3000] # mA
         i_increment = 1000 # mA
         n_targets = int(abs(i_range[0])/i_increment + abs(i_range[1])/i_increment + 1)
         # n_positions = 1
@@ -112,7 +112,7 @@ def main():
         # print("Positions:", positions)
 
         assert (motor_tested == 1) or (motor_tested == 2)
-
+        assert (abs(i_range[0]) <= RI8523.rated_current_mA) and (abs(i_range[1]) <= RI8523.rated_current_mA)
         # MN1005.set_current_mA(current_command_mA=0)
         RI8523.set_current_mA(current_command_mA=0)
         time.sleep(0.5)
