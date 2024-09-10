@@ -3,18 +3,17 @@
 import sys
 import time
 from math import sin, pi
-sys.path.append('..')
 from GrayDemoCommon import * # reausable script header
 from datetime import datetime
 from motor import Motor
-sys.path.append('/home/pi/hoop-exo/python-can-wrapper')
+sys.path.append('/home/pi/python-can-wrapper/')
 from pyCANWrapper import PyCANWrapper
 
 
 def readData(on_target):
 
     t = time.time() - t0
-    pos_RI8523, i_RI8523 = RI8523.pcw.get_tpdo_results(index=1)
+    pos_RI8523, i_RI8523 = RI8523.pcw.get_tdpo_results()
     pos_RI8523 *= RI8523.cts_to_deg
     i_RI8523 *= RI8523.rated_1000_to_mA*RI8523.elmo_i_to_i_q
     adc.update()
@@ -33,23 +32,23 @@ def readLoop(t_loop, on_target):
     return
 
 def hitTarget(i_target_mA, hold_t, Motor_test):
-
+    # i_target_mA = 0
     Motor_test.set_current_mA(current_command_mA=i_target_mA, verbose=True)
-
-    i_now = readData(0)[motor_tested+1]
+    # read_check = readData(0)
+    i_now = readData(0)[1]
     while abs(i_now - i_target_mA) > 10:
-        i_now = readData(0)[motor_tested+1]
+        i_now = readData(0)[1]
 
     print('Hit target', str(i_target_mA), 'mA')
-    target_torque = readData(1)[4]
+    target_torque = readData(1)[-1]
     print(f'Futek Torque: {target_torque:.3f}')
     readLoop(hold_t, 1)
 
     Motor_test.set_current_mA(current_command_mA=0)
 
-    i_now = readData(0)[motor_tested+1]
+    i_now = readData(0)[1]
     while abs(i_now - 0) > 10:
-        i_now = readData(0)[motor_tested+1]
+        i_now = readData(0)[1]
 
     print('Cooling down...')
     readLoop(5, 0)
@@ -82,13 +81,13 @@ def getTargets(i_range, n_targets):
         if len(targets)%2 == 1:
             ordered_targets.append(targets[int(len(targets)//2)])
 
-    return ordered_targets
+    return sorted(ordered_targets)
 
 def main():
 
     global t0, res_torque, motor_tested, RI8523
 
-    RI8523 = Motor(node_id=127, can_network=None, control_mode=4,\
+    RI8523 = Motor(node_id=69, can_network=None, control_mode=4,\
                     rated_current_mA=12500, max_current_mA=40000, current_slope_mA_sec=5000,\
                     max_velocity_RPM=2750, max_acceleration_RPM_sec=1000, max_deceleration_RPM_sec=1000,\
                         profile_velocity_RPM=1000, profile_acceleration_RPM_sec=500, profile_deceleraton_RPM_sec=500)
@@ -101,7 +100,7 @@ def main():
                              trans_type = 254, event_timer = 10, enabled = True)
 
         motor_tested = 2 # 1: testing MN1005, RI8523 motor in pos control, 2: testing RI8523 motor, MN1005 in position control
-        i_range = [-3000, 3000] # mA
+        i_range = [-1000, 1000] # mA
         i_increment = 1000 # mA
         n_targets = int(abs(i_range[0])/i_increment + abs(i_range[1])/i_increment + 1)
         # n_positions = 1
@@ -123,7 +122,7 @@ def main():
 
 
         for current_mA in i_targets:
-                hitTarget(current_mA, 5, RI8523)
+                hitTarget(current_mA, 3, RI8523)
 
                 RI8523.set_current_mA(current_command_mA=0)
                 print('Setting current to zero...')

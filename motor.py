@@ -1,6 +1,6 @@
 import sys
 import math
-sys.path.append('/home/pi/hoop-exo/python-can-wrapper')
+sys.path.append('/home/pi/python-can-wrapper')
 from pyCANWrapper import PyCANWrapper
 
 class Motor:
@@ -46,7 +46,7 @@ class Motor:
         self.init = False
 
         self.pcw = PyCANWrapper(can_network=can_network, node=self.node_id, verbose=False, \
-                                eds_file_loc="/home/pi/hoop-exo/python-can-wrapper/GoldSoloTwitter.eds")
+                                eds_file_loc="/home/pi/python-can-wrapper/GoldSoloTwitter.eds")
         
         self.config=[
             ('controlword', 0x000F),
