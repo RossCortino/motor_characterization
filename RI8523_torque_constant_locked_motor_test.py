@@ -36,10 +36,11 @@ def hitTarget(i_target, hold_t, Motor_test):
     # i_target_mA = 0
     Motor_test.set_current(i_target)
     # read_check = readData(0)
-    i_now = Motor_test.get_current(i_target)
-    while abs(i_now - i_target) > .001:
+    i_now = Motor_test.get_current()
+    while abs(i_now) - abs(i_target) > .01:
         i_now = readData(0)[1]
-
+        # print(i_now)
+    time.sleep(.5)
     print('Hit target', str(i_target), 'A')
     target_torque = readData(1)[-1]
     print(f'Futek Torque: {target_torque:.3f}')
@@ -48,7 +49,7 @@ def hitTarget(i_target, hold_t, Motor_test):
     Motor_test.set_current(0)
 
     i_now = readData(0)[1]
-    while abs(i_now - 0) > 10:
+    while abs(i_now - 0) > .01:
         i_now = readData(0)[1]
 
     print('Cooling down...')
@@ -94,7 +95,7 @@ def main():
 
         
     try:
-        i_range = [-1, 1] # A
+        i_range = [-10, 10] # A
         i_increment = 1# A
         n_targets = int(abs(i_range[0])/i_increment + abs(i_range[1])/i_increment + 1)
 

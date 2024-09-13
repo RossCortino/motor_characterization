@@ -1,0 +1,28 @@
+hardware:
+  encoder_counts: 40000 # counts
+  motor_winding: "delta" # delta, wye
+
+controller:
+  # Current
+  max_current: 1000
+  # torque_slope: 3
+
+  # Velocity
+  sensor_selection_code: 0
+  # velocity_window: 3
+  # velocity_threshold: 3
+  # velocity_threshold_time: 3
+
+  # Position
+  # modes_of_operation: 1
+  # position_range_limit: 3
+  # software_position_limit: 3
+  # maximum_profile_velocity: 3
+  # profiled_velocity: 3
+  # end_velocity: 3
+  # profiled_acceleration: 3
+  # profiled_deceleration: 3
+  # motion_profile_type: 3
+  # maximum_acceleration: 3
+  # maximum_deceleration: 3
+  # positioning_option_code: 3
