@@ -5,20 +5,21 @@ import time
 from math import sin, pi
 from GrayDemoCommon import * # reausable script header
 from datetime import datetime
-from motor import Motor
 sys.path.append('/home/pi/python-can-wrapper/')
-from pyCANWrapper import PyCANWrapper
+from Motor import Motor
+# from pyCANWrapper import PyCANWrapper
 
 
 def readData(on_target):
 
     t = time.time() - t0
-    pos_RI8523, i_RI8523 = RI8523.pcw.get_tdpo_results()
-    pos_RI8523 *= RI8523.cts_to_deg
-    i_RI8523 *= RI8523.rated_1000_to_mA*RI8523.elmo_i_to_i_q
+
+    i_RI8523 = RI8523.get_current() # A
+    pos_RI8523 = RI8523.get_position(units = 1) #deg
+
     adc.update()
     futek_torque = adc.get_torque()-res_torque
-    csv_writer.writerow([t, motor_tested, RI8523.current_command_mA, on_target,\
+    csv_writer.writerow([t, motor_tested, RI8523.get_current_command(), on_target,\
                             pos_RI8523, i_RI8523, futek_torque])
 
     return pos_RI8523, i_RI8523, futek_torque
@@ -31,20 +32,20 @@ def readLoop(t_loop, on_target):
 
     return
 
-def hitTarget(i_target_mA, hold_t, Motor_test):
+def hitTarget(i_target, hold_t, Motor_test):
     # i_target_mA = 0
-    Motor_test.set_current_mA(current_command_mA=i_target_mA, verbose=True)
+    Motor_test.set_current(i_target)
     # read_check = readData(0)
-    i_now = readData(0)[1]
-    while abs(i_now - i_target_mA) > 10:
+    i_now = Motor_test.get_current(i_target)
+    while abs(i_now - i_target) > .001:
         i_now = readData(0)[1]
 
-    print('Hit target', str(i_target_mA), 'mA')
+    print('Hit target', str(i_target), 'A')
     target_torque = readData(1)[-1]
     print(f'Futek Torque: {target_torque:.3f}')
     readLoop(hold_t, 1)
 
-    Motor_test.set_current_mA(current_command_mA=0)
+    Motor_test.set_current(0)
 
     i_now = readData(0)[1]
     while abs(i_now - 0) > 10:
@@ -87,33 +88,22 @@ def main():
 
     global t0, res_torque, motor_tested, RI8523
 
-    RI8523 = Motor(node_id=69, can_network=None, control_mode=4,\
-                    rated_current_mA=12500, max_current_mA=40000, current_slope_mA_sec=5000,\
-                    max_velocity_RPM=2750, max_acceleration_RPM_sec=1000, max_deceleration_RPM_sec=1000,\
-                        profile_velocity_RPM=1000, profile_acceleration_RPM_sec=500, profile_deceleraton_RPM_sec=500)
+    RI8523 = Motor(node_id=69, callback=False )
+
+    motor_tested = "RI8523"
+
         
     try:
-
-        # MN1005.pcw.setup_tpdo(['position_actual_internal_value', 'current_actual_value'], index=1, \
-        #                       trans_type = 254, event_timer = 10, enabled = True)
-        RI8523.pcw.setup_tpdo(['position_actual_internal_value', 'current_actual_value'], index=1, \
-                             trans_type = 254, event_timer = 10, enabled = True)
-
-        motor_tested = 2 # 1: testing MN1005, RI8523 motor in pos control, 2: testing RI8523 motor, MN1005 in position control
-        i_range = [-1000, 1000] # mA
-        i_increment = 1000 # mA
+        i_range = [-1, 1] # A
+        i_increment = 1# A
         n_targets = int(abs(i_range[0])/i_increment + abs(i_range[1])/i_increment + 1)
-        # n_positions = 1
 
-        i_targets = getTargets(i_range, n_targets) # converted to cts/s
-        # positions = [x*360./n_positions for x in range(n_positions)]
+        i_targets = getTargets(i_range, n_targets) 
         print("Current Targets:", i_targets)
-        # print("Positions:", positions)
 
-        assert (motor_tested == 1) or (motor_tested == 2)
-        assert (abs(i_range[0]) <= RI8523.rated_current_mA) and (abs(i_range[1]) <= RI8523.rated_current_mA)
-        # MN1005.set_current_mA(current_command_mA=0)
-        RI8523.set_current_mA(current_command_mA=0)
+        assert (abs(i_range[0]) <= 10) and (abs(i_range[1]) <= 10)
+
+        RI8523.set_current(0)
         time.sleep(0.5)
 
         adc.update()
@@ -121,21 +111,20 @@ def main():
         t0 = time.time()
 
 
-        for current_mA in i_targets:
-                hitTarget(current_mA, 3, RI8523)
+        for current in i_targets:
+                hitTarget(current, 3, RI8523)
 
-                RI8523.set_current_mA(current_command_mA=0)
+                RI8523.set_current(0)
                 print('Setting current to zero...')
 
-        RI8523.disconnect(kill_network=1)
+        RI8523.disconnect()
 
     except:
 
-        RI8523.pcw.config([('torque_slope', 15000)])
-        RI8523.set_current_mA(current_command_mA=0, verbose=True)
+        RI8523.set_current(0)
         readLoop(2, 0)
         
-        RI8523.disconnect(kill_network=1)
+        RI8523.disconnect()
 
         traceback.print_exception(*sys.exc_info())
 
