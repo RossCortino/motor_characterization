@@ -4,7 +4,7 @@ hardware:
 
 controller:
   # Current
-  max_current: 1000
+  max_current: 1500
   # torque_slope: 3
 
   # Velocity

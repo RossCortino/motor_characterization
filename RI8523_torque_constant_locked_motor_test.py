@@ -53,7 +53,7 @@ def hitTarget(i_target, hold_t, Motor_test):
         i_now = readData(0)[1]
 
     print('Cooling down...')
-    readLoop(5, 0)
+    readLoop(2, 0)
 
 def getTargets(i_range, n_targets):
 
@@ -90,6 +90,7 @@ def main():
     global t0, res_torque, motor_tested, RI8523
 
     RI8523 = Motor(node_id=69, callback=False )
+    RI8523.set_mode(mode = 0)
 
     motor_tested = "RI8523"
 
@@ -132,10 +133,11 @@ def main():
 if __name__ == '__main__':
 
     global csv_writer, adc
-    
-    with open("data/RI8523_current_torque_locked_%s.csv"% datetime.now().strftime("%Y-%b-%d-%H%M%S"),'w') as fd:
-        csv_writer = csv.writer(fd)
-        csv_writer.writerow(["t", "motor_tested", "curr_target_mA", "on_target",\
-                             "i_q_RI8523_mA", "futek_torque_Nm"])
-        with Hoop18NmFutek() as adc:
-            main()
+    num_trials = 5
+    for i in range(num_trials):
+        with open("data/current_test/RI8523_current_torque_locked_%s.csv"% datetime.now().strftime("%Y-%b-%d-%H%M%S"),'w') as fd:
+            csv_writer = csv.writer(fd)
+            csv_writer.writerow(["t", "motor_tested", "curr_target_mA", "on_target",\
+                                "i_q_RI8523_mA", "futek_torque_Nm"])
+            with Hoop18NmFutek() as adc:
+                main()
