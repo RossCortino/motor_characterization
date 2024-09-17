@@ -96,7 +96,7 @@ def main():
 
         
     try:
-        i_range = [-10, 10] # A
+        i_range = [-13, 13] # A
         i_increment = 1# A
         n_targets = int(abs(i_range[0])/i_increment + abs(i_range[1])/i_increment + 1)
 
@@ -134,6 +134,7 @@ if __name__ == '__main__':
 
     global csv_writer, adc
     num_trials = 5
+    sleep_time = 300
     for i in range(num_trials):
         with open("data/current_test/RI8523_current_torque_locked_%s.csv"% datetime.now().strftime("%Y-%b-%d-%H%M%S"),'w') as fd:
             csv_writer = csv.writer(fd)
@@ -141,3 +142,5 @@ if __name__ == '__main__':
                                 "i_q_RI8523_mA", "futek_torque_Nm"])
             with Hoop18NmFutek() as adc:
                 main()
+        print("\n\n\nMotors Resting between Trials...\n\n\n")
+        time.sleep(sleep_time)
