@@ -9,8 +9,8 @@ sys.path.append('/home/pi/python-can-wrapper')
 from Motor import Motor
 
 motor_id = 69 # CAN ID (127 for MN1005 and 69 for RI8523)
-current_command = 10 #Amps
-t_test = 5 # seconds
+current_command = 8 #Amps
+t_test = 3 # seconds
 
 
 if __name__ == '__main__':
@@ -32,4 +32,4 @@ if __name__ == '__main__':
         test_motor.set_current(0)
     finally:
         test_motor.disconnect()
-        print("Velocity Test Finished")
+        print("Current Test Finished")

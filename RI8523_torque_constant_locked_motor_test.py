@@ -93,17 +93,16 @@ def main():
     RI8523.set_mode(mode = 0)
 
     motor_tested = "RI8523"
-
         
     try:
         i_range = [-13, 13] # A
-        i_increment = 1# A
+        i_increment = .5# A
         n_targets = int(abs(i_range[0])/i_increment + abs(i_range[1])/i_increment + 1)
 
         i_targets = getTargets(i_range, n_targets) 
         print("Current Targets:", i_targets)
 
-        assert (abs(i_range[0]) <= 10) and (abs(i_range[1]) <= 10)
+        assert (abs(i_range[0]) <= 13.3) and (abs(i_range[1]) <= 13.3)
 
         RI8523.set_current(0)
         time.sleep(0.5)

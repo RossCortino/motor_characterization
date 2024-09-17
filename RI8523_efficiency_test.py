@@ -69,7 +69,9 @@ def hitVelTargets(vel_targets, i_targets, Vel_Motor, Curr_Motor):
     global res_torque, vel_RPM
 
     Vel_Motor.set_mode(1) # Set to Velocity Mode
+    time.sleep(1)
     Curr_Motor.set_mode(0) # Set to Current Mode
+    time.sleep(1)
 
     for vel_RPM in vel_targets:
 
@@ -156,10 +158,10 @@ def main():
     try:
 
 
-        i_range = [-13, 13] # A
+        i_range = [0, 5] # A
         i_increment = .5  #A
         n_i_targets = int(abs(i_range[0])/i_increment + abs(i_range[1])/i_increment + 1)
-        vel_range = [-1200, 1200] # RPM
+        vel_range = [0, 100] # RPM
         vel_increment = 100 # RPM
         n_vel_targets = int(abs(vel_range[0])/vel_increment + abs(vel_range[1])/vel_increment + 1)
 

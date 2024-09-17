@@ -8,8 +8,8 @@ from datetime import datetime
 sys.path.append('/home/pi/python-can-wrapper')
 from Motor import Motor
 
-motor_id = 127 # CAN ID (127 for MN1005 and 69 for RI8523)
-vel_command = -200 #RPM
+motor_id = 69 # CAN ID (127 for MN1005 and 69 for RI8523)
+vel_command = -100 #RPM
 t_test = 5 # seconds
 
 
