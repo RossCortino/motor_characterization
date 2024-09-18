@@ -14,7 +14,7 @@ def readVelocityCurrent(on_target, test_motor, csv_writer):
     t = time.time() - t0
     vel_motor =  test_motor.get_velocity(units = 1)
     i_motor =  test_motor.get_current()
-    csv_writer.writerow([t, test_motor.get_velocity_command(), on_target, vel_motor, i_motor])
+    csv_writer.writerow([t, "RI8523", test_motor.get_velocity_command(), on_target, vel_motor, i_motor])
 
     return vel_motor, i_motor
 
@@ -60,7 +60,7 @@ def main(csv_writer):
 
     global t0
 
-    RI8523 = Motor(node_id=127)
+    RI8523 = Motor(node_id=69)
     RI8523.set_mode(mode = 1)
         
     try:
@@ -95,7 +95,7 @@ def main(csv_writer):
 
 if __name__ == '__main__':
     
-    with open("data/velocity_current_%s.csv"% datetime.now().strftime("%Y-%b-%d-%H%M%S"),'w') as fd:
+    with open("data/velocity_test/velocity_control/RI8523_damping_friction_%s.csv"% datetime.now().strftime("%Y-%b-%d-%H%M%S"),'w') as fd:
         csv_writer = csv.writer(fd)
-        csv_writer.writerow(["t", "vel_target_RPM", "on_target", "vel_RI8523_RPM", "i_RI8523_mA"])
+        csv_writer.writerow(["t", "motor_tested", "vel_target_RPM", "on_target", "vel_RI8523_RPM", "i_RI8523_mA"])
         main(csv_writer)
