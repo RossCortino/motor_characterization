@@ -12,7 +12,6 @@ temp_table = [];
 for k = 1:length(data_files)
     if isempty(temp_table)
         temp_table = readtable(strcat(data_files(k).folder,"\",data_files(k).name));
-
     else
         temp_table = [temp_table; readtable(strcat(data_files(k).folder,"\",data_files(k).name))];
     end
