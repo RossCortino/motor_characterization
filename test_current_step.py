@@ -9,18 +9,19 @@ sys.path.append('/home/pi/python-can-wrapper')
 from Motor import Motor
 
 motor_id = 69 # CAN ID (127 for MN1005 and 69 for RI8523)
-current_command = 8 #Amps
-t_test = 3 # seconds
+current_command = -.1 #Amps
+t_test = 5# seconds
 
 
 if __name__ == '__main__':
     
     test_motor = Motor(node_id=motor_id)
+    test_motor.go_operational()
     test_motor.set_mode(mode = 0)
 
     time.sleep(2)
     test_motor.set_current(current_command)
-    loop = SoftRealtimeLoop(dt = 1/500, report = False, fade = 0.01)
+    loop = SoftRealtimeLoop(dt = 1/500, report = False, fade = 0.002)
     try:
         for t in loop:
             if t_test-t > 0:
