@@ -6,7 +6,7 @@ close all;
 
 % filename = "Futek_ADC-PCB";
 log_folder = "data/V_LL_test";
-filename = strcat(log_folder,"/","V_LL_50_RPM_testfile");
+filename = strcat(log_folder,"/","V_LL_-400_RPM");
 
 daqreset;
 temp_dev = daqlist("ni");
@@ -18,7 +18,7 @@ disp(dev.Description);
 dq = daq("ni");
 dq.Rate = 500; % Flir @ 8.7Hz
 [ch1,idx1] = addinput(dq, dev.DeviceID, "ai0", "Voltage");
-ch1.Range = [-5 5];
+ch1.Range = [-10 10];
 
 logData(dq, filename);
 
