@@ -6,7 +6,7 @@ else
     model_num = 1;
 end
 
-data_files = dir(fullfile(file_path,'*.xlsx'));
+data_files = dir(fullfile(file_path,'*.csv'));
 % data_files.folder
 temp_table = [];
 for k = 1:length(data_files)
@@ -20,7 +20,7 @@ temp_table.Properties.VariableNames = ["time","motor_name",...
     "command","on_target","measured_velocity",...
     "measured_current"];
 
-motor_on_flag = ismember(temp_table.on_target,1);
+motor_on_flag = ismember(temp_table.on_target,1) & ~ismember(temp_table.command,0);
 
 test_table = sortrows(temp_table(motor_on_flag,:),"command");
 average_test_table = groupsummary(test_table,{'command'},{'mean','std'},{'measured_velocity','measured_current'});
