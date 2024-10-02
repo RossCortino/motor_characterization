@@ -29,7 +29,7 @@ A_all = [test_table.measured_current_RI8523, RPM_to_radpersecond(test_table.meas
 b_all = test_table.measured_torque;
 
 A_avg = [average_test_table.mean_measured_current_RI8523, RPM_to_radpersecond(average_test_table.mean_measured_velocity_RI8523),...
-    -sign(RPM_to_radpersecond(average_test_table.mean_measured_velocity_RI8523)), ones(size(average_test_table.mean_measured_current_RI8523))];
+    sign(RPM_to_radpersecond(average_test_table.mean_measured_velocity_RI8523)), ones(size(average_test_table.mean_measured_current_RI8523))];
 b_avg = average_test_table.mean_measured_torque;
 
 x_all = least_squares(A_all,b_all);
