@@ -1,0 +1,157 @@
+
+addpath("C:\Users\rcort\Documents\Research\Datasets\")
+
+if ~exist("GT_Dataset_Corrected")
+    load("GT_Dataset_Corrected_RO1_Naming.mat")
+end
+    data = GT_Dataset_Corrected;
+subject_fields = fieldnames(data);
+
+%Params
+activity = "stair";
+
+% Define in function depending on inputs
+stride = "s4";
+task_list = ["in7", "in6", "in5", "in4", "i4", "i5", "i6", "i7"];
+
+% Full Stride
+thigh_angle = [];
+knee_angle = [];
+ankle_angle = [];
+
+thigh_velocity = [];
+knee_velocity = [];
+ankle_velocity = [];
+
+knee_torque= [];
+ankle_torque = [];
+stride_time = [];
+
+
+% Stance Stride
+thigh_angle = [];
+knee_angle = [];
+ankle_angle = [];
+
+thigh_velocity = [];
+knee_velocity = [];
+ankle_velocity = [];
+
+knee_torque= [];
+ankle_torque = [];
+stride_time = [];
+
+sample_vec = 1:150;
+
+for j = 1:length(task_list)
+    task = task_list(j);
+    
+    if contains(task,"in")
+        stride_str = strcat(stride,"_descent");
+    else
+        stride_str = strcat(stride,"_ascent");
+    end
+       
+    for i = 1:length(subject_fields)
+        subject = subject_fields{i};
+        % Initialize sub arrays
+        
+        % Fill in array
+        
+        thigh_angle_sub = rad2deg(data.(subject).stair.(stride_str).(task).jointAngles.global_thigh_angle);
+        knee_angle_sub =  data.(subject).stair.(stride_str).(task).jointAngles.knee_angle;
+        ankle_angle_sub = data.(subject).stair.(stride_str).(task).jointAngles.ankle_angle;
+       
+        knee_velocity_sub = data.(subject).stair.(stride_str).(task).jointVelocities.knee_angle;
+        ankle_velocity_sub = data.(subject).stair.(stride_str).(task).jointVelocities.ankle_angle;
+        
+        knee_torque_sub = data.(subject).stair.(stride_str).(task).jointMoments.knee_moment;
+        ankle_torque_sub = data.(subject).stair.(stride_str).(task).jointMoments.ankle_moment;
+        stride_time_sub = data.(subject).stair.(stride_str).(task).time;
+        GRF_data = data.(subject).stair.(stride_str).(task).GRF.right.FP_vy;
+        
+        % Preallocate array sizes for faster code 
+        thigh_velocity_sub = NaN(size(stride_time_sub));    
+
+        thigh_angle_sub_stance = NaN(size(stride_time_sub)); 
+        knee_angle_sub =  NaN(size(stride_time_sub)); 
+        ankle_angle_sub = NaN(size(stride_time_sub)); 
+       
+        knee_velocity_sub = NaN(size(stride_time_sub)); 
+        ankle_velocity_sub = NaN(size(stride_time_sub)); 
+        
+        knee_torque_sub = NaN(size(stride_time_sub)); 
+        ankle_torque_sub = NaN(size(stride_time_sub)); 
+        stride_time_sub = NaN(size(stride_time_sub)); 
+
+        for v = 1:size(stride_time_sub,1)
+            dt_trial = mode(ddt(stride_time_sub(v,:)));
+            thigh_angle_trial = thigh_angle_sub(v,:);
+            thigh_velocity_sub(v,:) = ddt(thigh_angle_trial,dt_trial);
+            stance_indices = GRF_data(v,:) > 5e-3;
+            
+            % get stance data
+            thigh_angle_sub_stance(v,:) = interp1(linspace(1,150,length(thigh_angle_sub(v,stance_indices))),...
+                thigh_angle_sub(v,stance_indices),sample_vec);
+
+            knee_angle_sub_stance(v,:) =  interp1(linspace(1,150,length(knee_angle_sub(v,stance_indices))),...
+                knee_angle_sub(v,stance_indices),sample_vec);
+
+            ankle_angle_sub_stance(v,:) = interp1(linspace(1,150,length(ankle_angle_sub(v,stance_indices))),...
+                ankle_angle_sub(v,stance_indices),sample_vec);
+
+            thigh_velocity_sub_stance(v,:) = interp1(linspace(1,150,length(thigh_velocity_sub(v,stance_indices))),...
+                thigh_velocity_sub(v,stance_indices),sample_vec);
+
+            knee_velocity_sub_stance(v,:) = interp1(linspace(1,150,length(knee_velocity_sub(v,stance_indices))),...
+                knee_velocity_sub(v,stance_indices),sample_vec);
+
+            ankle_velocity_sub_stance(v,:) = interp1(linspace(1,150,length(ankle_velocity_sub(v,stance_indices))),...
+                ankle_velocity_sub(v,stance_indices),sample_vec);
+
+            knee_torque_sub_stance(v,:) = interp1(linspace(1,150,length(knee_torque_sub(v,stance_indices))),...
+                knee_torque_sub(v,stance_indices),sample_vec);
+
+            ankle_torque_sub_stance(v,:) = interp1(linspace(1,150,length(ankle_torque_sub(v,stance_indices))),...
+                ankle_torque_sub(v,stance_indices),sample_vec);
+
+            stride_time_sub_stance(v,:) = interp1(linspace(1,150,length(stride_time_sub(v,stance_indices))),...
+                stride_time_sub(v,stance_indices),sample_vec);
+            
+            swing_indices = ~stance_indices;
+            % get swing data
+            thigh_angle_sub_swing(v,:) = interp1(linspace(1,150,length(thigh_angle_sub(v,swing_indices))),...
+                thigh_angle_sub(v,swing_indices),sample_vec);
+
+            knee_angle_sub_swing(v,:) =  interp1(linspace(1,150,length(knee_angle_sub(v,swing_indices))),...
+                knee_angle_sub(v,swing_indices),sample_vec);
+
+            ankle_angle_sub_swing(v,:) = interp1(linspace(1,150,length(ankle_angle_sub(v,swing_indices))),...
+                ankle_angle_sub(v,swing_indices),sample_vec);
+
+            thigh_velocity_sub_swing(v,:) = interp1(linspace(1,150,length(thigh_velocity_sub(v,swing_indices))),...
+                thigh_velocity_sub(v,swing_indices),sample_vec);
+
+            knee_velocity_sub_swing(v,:) = interp1(linspace(1,150,length(knee_velocity_sub(v,swing_indices))),...
+                knee_velocity_sub(v,swing_indices),sample_vec);
+
+            ankle_velocity_sub_swing(v,:) = interp1(linspace(1,150,length(ankle_velocity_sub(v,swing_indices))),...
+                ankle_velocity_sub(v,swing_indices),sample_vec);
+
+            knee_torque_sub_swing(v,:) = interp1(linspace(1,150,length(knee_torque_sub(v,swing_indices))),...
+                knee_torque_sub(v,swing_indices),sample_vec);
+
+            ankle_torque_sub_swing(v,:) = interp1(linspace(1,150,length(ankle_torque_sub(v,swing_indices))),...
+                ankle_torque_sub(v,swing_indices),sample_vec);
+
+            stride_time_sub_swing(v,:) = interp1(linspace(1,150,length(stride_time_sub(v,swing_indices))),...
+                stride_time_sub(v,swing_indices),sample_vec);
+        end
+
+        
+
+        
+    end
+    
+    
+end
